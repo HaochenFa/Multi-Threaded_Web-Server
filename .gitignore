@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Server runtime output
+server.log
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
