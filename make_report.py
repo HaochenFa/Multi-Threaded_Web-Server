@@ -20,7 +20,7 @@ import time
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import cm
+from reportlab.lib.units import cm, inch
 from reportlab.platypus import (
     Paragraph,
     Preformatted,
@@ -76,6 +76,17 @@ def truncate(text, max_lines=MAX_OUTPUT_LINES):
     omitted = len(lines) - max_lines
     kept.append(f"... [{omitted} lines omitted for brevity]")
     return "\n".join(kept)
+
+
+def wrap_output(text, width=105):
+    """Hard-wrap lines longer than width so Preformatted stays within page margins."""
+    result = []
+    for line in text.splitlines():
+        while len(line) > width:
+            result.append(line[:width])
+            line = "  " + line[width:]   # indent continuation for readability
+        result.append(line)
+    return "\n".join(result)
 
 
 def capture_demos():
@@ -182,13 +193,24 @@ def capture_demos():
 # ---------------------------------------------------------------------------
 
 def build_pdf(demos):
+    margin = 1 * inch
+    pre_font_size = 7.5
+    code_font_size = 8
+    border_pad = 4   # must match code_style / pre_style below
+
+    # Courier character width = 0.6 × font size (600-unit advance in a 1000-unit em)
+    # Usable text width = page width − 2 margins − 2× borderPad (left+right)
+    _text_w = A4[0] - 2 * margin - 2 * border_pad
+    PRE_COLS  = int(_text_w / (0.6 * pre_font_size))   # chars that fit in pre_style
+    CODE_COLS = int(_text_w / (0.6 * code_font_size))  # chars that fit in code_style
+
     doc = SimpleDocTemplate(
         REPORT_PATH,
         pagesize=A4,
-        leftMargin=2.5 * cm,
-        rightMargin=2.5 * cm,
-        topMargin=2.5 * cm,
-        bottomMargin=2.5 * cm,
+        leftMargin=margin,
+        rightMargin=margin,
+        topMargin=margin,
+        bottomMargin=margin,
         title="COMP2322 Multi-threaded Web Server — Project Report",
         author=STUDENT_NAME,
     )
@@ -217,17 +239,19 @@ def build_pdf(demos):
     )
     code_style = ParagraphStyle(
         "Code", parent=base_styles["Code"],
-        fontName="Courier", fontSize=8,
+        fontName="Courier", fontSize=code_font_size,
         backColor=colors.HexColor("#f5f5f5"),
-        borderPad=4, spaceAfter=4,
+        borderPad=border_pad, spaceAfter=4,
+        leftIndent=0,
     )
     pre_style = ParagraphStyle(
         "Pre", parent=base_styles["Code"],
-        fontName="Courier", fontSize=7.5,
+        fontName="Courier", fontSize=pre_font_size,
         backColor=colors.HexColor("#fafafa"),
         borderColor=colors.HexColor("#dddddd"),
-        borderWidth=0.5, borderPad=4,
+        borderWidth=0.5, borderPad=border_pad,
         spaceAfter=8,
+        leftIndent=0,
         wordWrap="CJK",        # allow breaking anywhere (needed for long lines)
     )
 
@@ -451,9 +475,9 @@ def build_pdf(demos):
     for i, (title, cmd_str, output) in enumerate(demos, start=1):
         story.append(Paragraph(f"2.{i}  {title}", h2))
         story.append(Paragraph("Command:", h3))
-        story.append(Preformatted(cmd_str, code_style))
+        story.append(Preformatted(wrap_output(cmd_str, CODE_COLS), code_style))
         story.append(Paragraph("Output:", h3))
-        story.append(Preformatted(output if output.strip() else "(no output)", pre_style))
+        story.append(Preformatted(wrap_output(output, PRE_COLS) if output.strip() else "(no output)", pre_style))
         story.append(Spacer(1, 0.2 * cm))
 
     story.append(PageBreak())
@@ -477,7 +501,7 @@ def build_pdf(demos):
     else:
         log_content = "(server.log not found)"
 
-    story.append(Preformatted(log_content if log_content.strip() else "(log is empty)", pre_style))
+    story.append(Preformatted(wrap_output(log_content, PRE_COLS) if log_content.strip() else "(log is empty)", pre_style))
 
     # ---- Build ----
     print(f"[make_report] Building {REPORT_PATH} ...", flush=True)
