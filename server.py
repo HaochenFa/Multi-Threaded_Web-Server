@@ -191,8 +191,8 @@ def recv_request(conn: socket.socket):
 
     Returns the raw byte buffer (may contain bytes past \\r\\n\\r\\n).
     Returns None if the client closed the connection (graceful FIN).
+    Returns b"" (empty bytes) if headers exceed MAX_HEADER_SIZE — caller sends 400.
     Raises socket.timeout if the keep-alive idle timer fires.
-    Returns None if the headers exceed MAX_HEADER_SIZE (treat as bad request).
     """
     buf = bytearray()
     while b"\r\n\r\n" not in buf:
@@ -201,7 +201,7 @@ def recv_request(conn: socket.socket):
             return None   # peer closed connection (TCP FIN)
         buf.extend(chunk)
         if len(buf) > MAX_HEADER_SIZE:
-            return None   # request too large; treat as malformed
+            return b""    # request too large; signal 400 to caller
     return bytes(buf)
 
 
@@ -337,6 +337,16 @@ def handle_connection(conn: socket.socket, addr: tuple) -> None:
                 return   # client closed connection (graceful FIN)
 
             access_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+            if raw == b"":
+                # Headers exceeded MAX_HEADER_SIZE — send 400 and close
+                body = build_error_body(400, "Bad Request")
+                send_response(conn, "GET", 400, "Bad Request",
+                              {"Content-Type": "text/html",
+                               "Content-Length": str(len(body))},
+                              body, "close")
+                write_log(client_ip, access_time, "-", 400)
+                return
 
             # ----------------------------------------------------------------
             # 2. Parse request

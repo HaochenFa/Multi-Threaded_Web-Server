@@ -12,10 +12,24 @@ How to Run
 
 Open a browser at:  http://127.0.0.1:8080/
 
+Setup for Testing
+-----------------
+  # Generate www/image.png if missing (run once)
+  python make_image.py
+
+  # Prepare secret.txt for the 403 Forbidden test
+  echo "This file is used to test HTTP 403 Forbidden." > www/secret.txt
+  chmod 000 www/secret.txt
+  # Restore after testing:
+  chmod 644 www/secret.txt
+
 How to Test
 -----------
   # GET text file (200 OK)
   curl -v http://127.0.0.1:8080/index.html
+
+  # GET CSS file (200 OK, Content-Type: text/css)
+  curl -v http://127.0.0.1:8080/style.css
 
   # GET image file (200 OK)
   curl -v http://127.0.0.1:8080/image.png
@@ -30,12 +44,11 @@ How to Test
   # 404 Not Found
   curl http://127.0.0.1:8080/doesnotexist.html
 
-  # 403 Forbidden (requires a file with no read permission)
-  chmod 000 www/secret.txt
+  # 403 Forbidden (requires www/secret.txt with chmod 000 -- see Setup above)
   curl http://127.0.0.1:8080/secret.txt
 
-  # 400 Bad Request
-  printf "BADREQUEST\r\n\r\n" | nc 127.0.0.1 8080
+  # 400 Bad Request (macOS-compatible -- nc lacks -q flag on macOS)
+  python3 -c "import socket; s=socket.create_connection(('127.0.0.1',8080)); s.sendall(b'BADREQUEST\r\n\r\n'); print(s.recv(4096).decode())"
 
   # Connection: close (non-persistent)
   curl -H "Connection: close" -v http://127.0.0.1:8080/index.html
