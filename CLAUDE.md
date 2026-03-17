@@ -11,8 +11,9 @@ Build a multi-threaded HTTP web server from scratch in Python using raw socket p
 ## File Structure
 
 ```
-server.py          # Complete HTTP server (~370 lines)
+server.py          # Complete HTTP server (~451 lines)
 make_image.py      # Stdlib-only script to generate www/image.png (run once)
+make_report.py     # Generates report.pdf from template (run once; requires reportlab)
 www/
   index.html       # Sample HTML page (links to image.png and style.css)
   style.css        # Sample stylesheet (tests text/css MIME type)
@@ -94,7 +95,7 @@ All tests are pure-function tests (no server process needed). Covers: `parse_req
 - [x] `www/` — sample web files for testing (HTML + at least one image)
 - [x] `server.log` — example log from a test run (force-added: `git add -f server.log`)
 - [x] `README.txt` — how to compile/run
-- [ ] Project report (PDF) — cover page, design summary, screenshots of all features, log file sample
+- [x] Project report (PDF) — cover page, design summary, screenshots of all features, log file sample
 
 ## Gotchas
 
