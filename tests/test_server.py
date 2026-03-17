@@ -52,6 +52,7 @@ def test_parse_path_with_query_string():
 def test_parse_headers_case_insensitive():
     raw = b"GET / HTTP/1.1\r\nIf-Modified-Since: Mon, 01 Jan 2024 00:00:00 GMT\r\n\r\n"
     r = server.parse_request(raw)
+    assert r is not None
     assert "if-modified-since" in r["headers"]
 
 
