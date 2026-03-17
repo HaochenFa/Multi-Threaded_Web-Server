@@ -35,16 +35,17 @@ from reportlab.platypus import (
 # ---------------------------------------------------------------------------
 # Configuration — edit these before generating the final PDF
 # ---------------------------------------------------------------------------
-STUDENT_NAME = "Billy Fang"
-STUDENT_ID   = "22104780"
-REPORT_PATH  = os.path.join(os.path.dirname(os.path.abspath(__file__)), "report.pdf")
-SERVER_PORT  = 8080
-BASE_URL     = f"http://127.0.0.1:{SERVER_PORT}"
+STUDENT_NAME = "FA, Haochen"
+STUDENT_ID = "241133447D"
+REPORT_PATH = os.path.join(os.path.dirname(
+    os.path.abspath(__file__)), "report.pdf")
+SERVER_PORT = 8080
+BASE_URL = f"http://127.0.0.1:{SERVER_PORT}"
 
-PROJECT_DIR  = os.path.dirname(os.path.abspath(__file__))
-SERVER_PY    = os.path.join(PROJECT_DIR, "server.py")
-LOG_FILE     = os.path.join(PROJECT_DIR, "server.log")
-SECRET_TXT   = os.path.join(PROJECT_DIR, "www", "secret.txt")
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+SERVER_PY = os.path.join(PROJECT_DIR, "server.py")
+LOG_FILE = os.path.join(PROJECT_DIR, "server.log")
+SECRET_TXT = os.path.join(PROJECT_DIR, "www", "secret.txt")
 
 MAX_OUTPUT_LINES = 50   # truncate captured output to keep PDF readable
 
@@ -108,7 +109,8 @@ def capture_demos():
     try:
         # ---- 1. GET text file (200) ----
         cmd_str = f'curl -v -H "Connection: close" {BASE_URL}/index.html'
-        out = run(["curl", "-v", "-H", "Connection: close", f"{BASE_URL}/index.html"])
+        out = run(["curl", "-v", "-H", "Connection: close",
+                  f"{BASE_URL}/index.html"])
         demos.append(("GET Text File — 200 OK", cmd_str, truncate(out)))
 
         # ---- 2. GET image file (200) ----
@@ -120,8 +122,10 @@ def capture_demos():
 
         # ---- 3. HEAD request (200, no body) ----
         cmd_str = f'curl -I -H "Connection: close" {BASE_URL}/index.html'
-        out = run(["curl", "-I", "-H", "Connection: close", f"{BASE_URL}/index.html"])
-        demos.append(("HEAD Request — 200 OK (no body)", cmd_str, truncate(out)))
+        out = run(["curl", "-I", "-H", "Connection: close",
+                  f"{BASE_URL}/index.html"])
+        demos.append(
+            ("HEAD Request — 200 OK (no body)", cmd_str, truncate(out)))
 
         # ---- 4. 304 Not Modified ----
         cmd_str = (f'curl -v -H "If-Modified-Since: Sat, 01 Jan 2030 00:00:00 GMT" '
@@ -165,12 +169,15 @@ def capture_demos():
         cmd_str = f'curl -v {BASE_URL}/index.html {BASE_URL}/image.png --output /dev/null'
         out = run(["curl", "-v", f"{BASE_URL}/index.html", f"{BASE_URL}/image.png",
                    "--output", "/dev/null"])
-        demos.append(("Connection: keep-alive (Persistent)", cmd_str, truncate(out)))
+        demos.append(
+            ("Connection: keep-alive (Persistent)", cmd_str, truncate(out)))
 
         # ---- 9. Connection: close (non-persistent) ----
         cmd_str = f'curl -v -H "Connection: close" {BASE_URL}/style.css'
-        out = run(["curl", "-v", "-H", "Connection: close", f"{BASE_URL}/style.css"])
-        demos.append(("Connection: close (Non-persistent)", cmd_str, truncate(out)))
+        out = run(["curl", "-v", "-H", "Connection: close",
+                  f"{BASE_URL}/style.css"])
+        demos.append(
+            ("Connection: close (Non-persistent)", cmd_str, truncate(out)))
 
     finally:
         print("[make_report] Stopping server ...", flush=True)
@@ -201,8 +208,10 @@ def build_pdf(demos):
     # Courier character width = 0.6 × font size (600-unit advance in a 1000-unit em)
     # Usable text width = page width − 2 margins − 2× borderPad (left+right)
     _text_w = A4[0] - 2 * margin - 2 * border_pad
-    PRE_COLS  = int(_text_w / (0.6 * pre_font_size))   # chars that fit in pre_style
-    CODE_COLS = int(_text_w / (0.6 * code_font_size))  # chars that fit in code_style
+    # chars that fit in pre_style
+    PRE_COLS = int(_text_w / (0.6 * pre_font_size))
+    # chars that fit in code_style
+    CODE_COLS = int(_text_w / (0.6 * code_font_size))
 
     doc = SimpleDocTemplate(
         REPORT_PATH,
@@ -252,7 +261,8 @@ def build_pdf(demos):
         borderWidth=0.5, borderPad=border_pad,
         spaceAfter=8,
         leftIndent=0,
-        wordWrap="CJK",        # allow breaking anywhere (needed for long lines)
+        # allow breaking anywhere (needed for long lines)
+        wordWrap="CJK",
     )
 
     story = []
@@ -281,7 +291,8 @@ def build_pdf(demos):
     story.append(Paragraph("Project Report", cover_sub))
     story.append(Paragraph("Multi-threaded Web Server", cover_sub))
     story.append(Spacer(1, 1.5 * cm))
-    story.append(HRFlowable(width="60%", thickness=1, color=colors.HexColor("#1a3a6b"), hAlign="CENTER"))
+    story.append(HRFlowable(width="60%", thickness=1,
+                 color=colors.HexColor("#1a3a6b"), hAlign="CENTER"))
     story.append(Spacer(1, 1.5 * cm))
     story.append(Paragraph("Submitted by:", cover_body))
     story.append(Paragraph(f"<b>{STUDENT_NAME}</b>", cover_body))
@@ -297,7 +308,8 @@ def build_pdf(demos):
     # SECTION 1 — DESIGN SUMMARY
     # ================================================================
     story.append(Paragraph("Section 1 — Design Summary", h1))
-    story.append(HRFlowable(width="100%", thickness=0.5, color=colors.HexColor("#cccccc")))
+    story.append(HRFlowable(width="100%", thickness=0.5,
+                 color=colors.HexColor("#cccccc")))
     story.append(Spacer(1, 0.3 * cm))
 
     # 1.1 Architecture Overview
@@ -390,10 +402,14 @@ def build_pdf(demos):
 
     status_data = [
         ["Code", "Meaning", "When triggered"],
-        ["200 OK", "Success", "File found, readable, not cached (If-Modified-Since check fails)"],
-        ["304 Not Modified", "Cached", "should_send_304() returns True (lm ≤ If-Modified-Since)"],
-        ["400 Bad Request", "Malformed", "parse_request() returns None, or unsupported HTTP method"],
-        ["403 Forbidden", "No read permission", "os.access(path, os.R_OK) is False"],
+        ["200 OK", "Success",
+            "File found, readable, not cached (If-Modified-Since check fails)"],
+        ["304 Not Modified", "Cached",
+            "should_send_304() returns True (lm ≤ If-Modified-Since)"],
+        ["400 Bad Request", "Malformed",
+            "parse_request() returns None, or unsupported HTTP method"],
+        ["403 Forbidden", "No read permission",
+            "os.access(path, os.R_OK) is False"],
         ["404 Not Found", "File absent", "os.path.isfile(path) is False"],
     ]
     tbl = Table(status_data, colWidths=[3.2 * cm, 3.8 * cm, 9.5 * cm])
@@ -402,19 +418,21 @@ def build_pdf(demos):
         ("TEXTCOLOR",  (0, 0), (-1, 0), colors.white),
         ("FONTNAME",   (0, 0), (-1, 0), "Helvetica-Bold"),
         ("FONTSIZE",   (0, 0), (-1, -1), 8.5),
-        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#f0f4fa")]),
+        ("ROWBACKGROUNDS", (0, 1), (-1, -1),
+         [colors.white, colors.HexColor("#f0f4fa")]),
         ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#bbbbbb")),
         ("VALIGN", (0, 0), (-1, -1), "TOP"),
         ("LEFTPADDING",  (0, 0), (-1, -1), 6),
         ("RIGHTPADDING", (0, 0), (-1, -1), 6),
         ("TOPPADDING",   (0, 0), (-1, -1), 4),
-        ("BOTTOMPADDING",(0, 0), (-1, -1), 4),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
     ]))
     story.append(tbl)
     story.append(Spacer(1, 0.3 * cm))
 
     # 1.8 Last-Modified / If-Modified-Since
-    story.append(Paragraph("1.8  Last-Modified / If-Modified-Since (304 Logic)", h2))
+    story.append(
+        Paragraph("1.8  Last-Modified / If-Modified-Since (304 Logic)", h2))
     story.append(Paragraph(
         "<code>format_http_date(timestamp)</code> converts a Unix mtime to an "
         "RFC 7231 HTTP-date string (e.g., <i>Mon, 17 Mar 2026 10:30:00 GMT</i>) "
@@ -430,7 +448,8 @@ def build_pdf(demos):
     ))
 
     # 1.9 Connection keep-alive / close
-    story.append(Paragraph("1.9  Connection: keep-alive / close (Persistent Connections)", h2))
+    story.append(
+        Paragraph("1.9  Connection: keep-alive / close (Persistent Connections)", h2))
     story.append(Paragraph(
         "HTTP/1.1 defaults to persistent connections. "
         "<code>handle_connection()</code> runs a <code>while True</code> loop, "
@@ -461,7 +480,8 @@ def build_pdf(demos):
     # SECTION 2 — DEMONSTRATION
     # ================================================================
     story.append(Paragraph("Section 2 — Demonstration", h1))
-    story.append(HRFlowable(width="100%", thickness=0.5, color=colors.HexColor("#cccccc")))
+    story.append(HRFlowable(width="100%", thickness=0.5,
+                 color=colors.HexColor("#cccccc")))
     story.append(Spacer(1, 0.3 * cm))
     story.append(Paragraph(
         "The following captures were produced by running <b>make_report.py</b>, "
@@ -477,7 +497,8 @@ def build_pdf(demos):
         story.append(Paragraph("Command:", h3))
         story.append(Preformatted(wrap_output(cmd_str, CODE_COLS), code_style))
         story.append(Paragraph("Output:", h3))
-        story.append(Preformatted(wrap_output(output, PRE_COLS) if output.strip() else "(no output)", pre_style))
+        story.append(Preformatted(wrap_output(output, PRE_COLS)
+                     if output.strip() else "(no output)", pre_style))
         story.append(Spacer(1, 0.2 * cm))
 
     story.append(PageBreak())
@@ -486,7 +507,8 @@ def build_pdf(demos):
     # SECTION 3 — LOG FILE
     # ================================================================
     story.append(Paragraph("Section 3 — Log File", h1))
-    story.append(HRFlowable(width="100%", thickness=0.5, color=colors.HexColor("#cccccc")))
+    story.append(HRFlowable(width="100%", thickness=0.5,
+                 color=colors.HexColor("#cccccc")))
     story.append(Spacer(1, 0.3 * cm))
     story.append(Paragraph(
         "Complete contents of <code>server.log</code> from a representative test run. "
@@ -501,7 +523,8 @@ def build_pdf(demos):
     else:
         log_content = "(server.log not found)"
 
-    story.append(Preformatted(wrap_output(log_content, PRE_COLS) if log_content.strip() else "(log is empty)", pre_style))
+    story.append(Preformatted(wrap_output(log_content, PRE_COLS)
+                 if log_content.strip() else "(log is empty)", pre_style))
 
     # ---- Build ----
     print(f"[make_report] Building {REPORT_PATH} ...", flush=True)

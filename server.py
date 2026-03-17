@@ -15,12 +15,14 @@ import urllib.parse
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-DEFAULT_PORT    = 8080
-WEB_ROOT        = os.path.join(os.path.dirname(os.path.abspath(__file__)), "www")
-WEB_ROOT_REAL   = os.path.realpath(WEB_ROOT)   # resolved once; used in traversal check
-LOG_FILE        = os.path.join(os.path.dirname(os.path.abspath(__file__)), "server.log")
+DEFAULT_PORT = 8080
+WEB_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "www")
+# resolved once; used in traversal check
+WEB_ROOT_REAL = os.path.realpath(WEB_ROOT)
+LOG_FILE = os.path.join(os.path.dirname(
+    os.path.abspath(__file__)), "server.log")
 KEEP_ALIVE_TIMEOUT = 30    # seconds before idle persistent connection is closed
-RECV_SIZE       = 4096     # bytes per recv() call
+RECV_SIZE = 4096     # bytes per recv() call
 MAX_HEADER_SIZE = 65536    # reject requests whose headers exceed 64 KB
 
 # ---------------------------------------------------------------------------
@@ -34,7 +36,7 @@ log_lock = threading.Lock()   # serialises writes to server.log
 CONTENT_TYPES = {
     ".html": "text/html",      ".htm": "text/html",
     ".css":  "text/css",       ".js":  "application/javascript",
-    ".jpg":  "image/jpeg",     ".jpeg":"image/jpeg",
+    ".jpg":  "image/jpeg",     ".jpeg": "image/jpeg",
     ".png":  "image/png",      ".gif": "image/gif",
     ".ico":  "image/x-icon",   ".txt": "text/plain",
 }
@@ -42,6 +44,8 @@ CONTENT_TYPES = {
 # ---------------------------------------------------------------------------
 # Helper: MIME type
 # ---------------------------------------------------------------------------
+
+
 def get_content_type(file_path: str) -> str:
     """Return MIME type for file_path based on extension."""
     ext = os.path.splitext(file_path)[1].lower()
@@ -89,7 +93,8 @@ def should_send_304(lm_timestamp: float, ims_header: str) -> bool:
     ims_dt = parse_http_date(ims_header)
     if ims_dt is None:
         return False
-    lm_dt = datetime.datetime.fromtimestamp(lm_timestamp, tz=datetime.timezone.utc)
+    lm_dt = datetime.datetime.fromtimestamp(
+        lm_timestamp, tz=datetime.timezone.utc)
     lm_dt = lm_dt.replace(microsecond=0)   # truncate to 1-second granularity
     return lm_dt <= ims_dt
 
@@ -238,7 +243,8 @@ def send_response(
     conn_header = f"Connection: {connection}\r\n"
 
     other_headers = "".join(f"{k}: {v}\r\n" for k, v in extra_headers.items())
-    header_block = (status_line + date_header + conn_header + other_headers + "\r\n").encode("latin-1")
+    header_block = (status_line + date_header + conn_header +
+                    other_headers + "\r\n").encode("latin-1")
 
     conn.sendall(header_block)
 
@@ -361,8 +367,8 @@ def handle_connection(conn: socket.socket, addr: tuple) -> None:
                 write_log(client_ip, access_time, "-", 400)
                 return   # always close after 400
 
-            method  = parsed["method"]
-            path    = parsed["path"]
+            method = parsed["method"]
+            path = parsed["path"]
             version = parsed["version"]
             req_hdr = parsed["headers"]
 
@@ -401,8 +407,10 @@ def handle_connection(conn: socket.socket, addr: tuple) -> None:
                               body, connection)
                 write_log(client_ip, access_time, path, 403)
             else:
-                status, msg, resp_headers, body = serve_file(method, fs_path, req_hdr)
-                send_response(conn, method, status, msg, resp_headers, body, connection)
+                status, msg, resp_headers, body = serve_file(
+                    method, fs_path, req_hdr)
+                send_response(conn, method, status, msg,
+                              resp_headers, body, connection)
                 write_log(client_ip, access_time, path, status)
 
             # ----------------------------------------------------------------
@@ -419,6 +427,8 @@ def handle_connection(conn: socket.socket, addr: tuple) -> None:
 # ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
+
+
 def main() -> None:
     port = int(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_PORT
 

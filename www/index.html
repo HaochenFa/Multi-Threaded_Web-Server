@@ -1,29 +1,29 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>COMP2322 Web Server</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <h1>COMP2322 Multi-threaded Web Server</h1>
-  <p>Server is running. This page tests GET for text files and CSS.</p>
+  <head>
+    <meta charset="UTF-8" />
+    <title>COMP2322 Web Server</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>COMP2322 Multi-threaded Web Server</h1>
+    <p>Server is running. This page tests GET for text files and CSS.</p>
 
-  <h2>Supported Features</h2>
-  <ul>
-    <li>Multi-threaded (one thread per connection)</li>
-    <li>GET text files &mdash; <strong>200 OK</strong></li>
-    <li>GET image files &mdash; <strong>200 OK</strong></li>
-    <li>HEAD request &mdash; headers only, no body</li>
-    <li>304 Not Modified (If-Modified-Since)</li>
-    <li>404 Not Found</li>
-    <li>403 Forbidden</li>
-    <li>400 Bad Request</li>
-    <li>Connection: keep-alive (persistent)</li>
-    <li>Connection: close (non-persistent)</li>
-  </ul>
+    <h2>Supported Features</h2>
+    <ul>
+      <li>Multi-threaded (one thread per connection)</li>
+      <li>GET text files &mdash; <strong>200 OK</strong></li>
+      <li>GET image files &mdash; <strong>200 OK</strong></li>
+      <li>HEAD request &mdash; headers only, no body</li>
+      <li>304 Not Modified (If-Modified-Since)</li>
+      <li>404 Not Found</li>
+      <li>403 Forbidden</li>
+      <li>400 Bad Request</li>
+      <li>Connection: keep-alive (persistent)</li>
+      <li>Connection: close (non-persistent)</li>
+    </ul>
 
-  <h2>Test Image</h2>
-  <img src="image.png" alt="Test image" width="120" height="120">
-</body>
+    <h2>Test Image</h2>
+    <img src="image.png" alt="Test image" width="120" height="120" />
+  </body>
 </html>

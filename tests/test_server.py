@@ -1,7 +1,10 @@
 """Unit tests for server.py pure helper functions."""
-import sys, os, datetime, tempfile
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import server
+import sys
+import os
+import datetime
+import tempfile
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 # ===========================================================================
@@ -79,7 +82,8 @@ def test_content_type_unknown():
 
 def test_format_http_date():
     # 2026-03-17 12:00:00 UTC → known string
-    ts = datetime.datetime(2026, 3, 17, 12, 0, 0, tzinfo=datetime.timezone.utc).timestamp()
+    ts = datetime.datetime(2026, 3, 17, 12, 0, 0,
+                           tzinfo=datetime.timezone.utc).timestamp()
     result = server.format_http_date(ts)
     assert result == "Tue, 17 Mar 2026 12:00:00 GMT"
 
@@ -104,25 +108,29 @@ def test_parse_http_date_whitespace():
 # ===========================================================================
 
 def test_304_when_ims_equals_lm():
-    ts = datetime.datetime(2026, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc).timestamp()
+    ts = datetime.datetime(2026, 1, 1, 0, 0, 0,
+                           tzinfo=datetime.timezone.utc).timestamp()
     lm_str = server.format_http_date(ts)
     assert server.should_send_304(ts, lm_str) is True
 
 
 def test_304_when_ims_after_lm():
-    ts = datetime.datetime(2020, 1, 1, tzinfo=datetime.timezone.utc).timestamp()
+    ts = datetime.datetime(
+        2020, 1, 1, tzinfo=datetime.timezone.utc).timestamp()
     future = "Sat, 01 Jan 2030 00:00:00 GMT"
     assert server.should_send_304(ts, future) is True
 
 
 def test_no_304_when_ims_before_lm():
-    ts = datetime.datetime(2026, 1, 1, tzinfo=datetime.timezone.utc).timestamp()
+    ts = datetime.datetime(
+        2026, 1, 1, tzinfo=datetime.timezone.utc).timestamp()
     past = "Sat, 01 Jan 2000 00:00:00 GMT"
     assert server.should_send_304(ts, past) is False
 
 
 def test_no_304_when_ims_invalid():
-    ts = datetime.datetime(2026, 1, 1, tzinfo=datetime.timezone.utc).timestamp()
+    ts = datetime.datetime(
+        2026, 1, 1, tzinfo=datetime.timezone.utc).timestamp()
     assert server.should_send_304(ts, "not-a-date") is False
 
 
@@ -178,7 +186,8 @@ def test_serve_file_head_body_returned(tmp_path):
 
 
 def test_serve_file_404(tmp_path):
-    status, msg, headers, body = server.serve_file("GET", str(tmp_path / "missing.html"), {})
+    status, msg, headers, body = server.serve_file(
+        "GET", str(tmp_path / "missing.html"), {})
     assert status == 404
 
 
@@ -197,7 +206,8 @@ def test_serve_file_304(tmp_path):
     f = tmp_path / "page.html"
     f.write_bytes(b"content")
     lm = server.format_http_date(os.path.getmtime(str(f)))
-    status, msg, headers, body = server.serve_file("GET", str(f), {"if-modified-since": lm})
+    status, msg, headers, body = server.serve_file(
+        "GET", str(f), {"if-modified-since": lm})
     assert status == 304
     assert body is None
 
