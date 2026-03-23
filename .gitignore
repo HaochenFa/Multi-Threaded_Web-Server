@@ -6,6 +6,9 @@ __pycache__/
 # Server runtime output
 server.log
 
+# Report generator (not part of submission)
+make_report.py
+
 # macOS
 .DS_Store
 
